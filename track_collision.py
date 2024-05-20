@@ -157,13 +157,13 @@ if __name__ == "__main__":
         cable_length_err = cable_length_ref - cable_length
         print('cable length err: {}'.format(cable_length_err))
 
-        # output velocity of moment k  (unit: degree/s)
+        # kinematics
         eps = 0.002
         k = 2.5
         velo_tag1 = (cable_length_ref_next - cable_length_ref) / T + eps * np.sign(cable_length_err) + k * cable_length_err           # control law
         print('veloJoint (linear): {}'.format(velo_tag1))
 
-        # controller on position
+        # pseudo velocity mapping
         eps = 0.000
         k = 0.8
         velo_task = (pos_ref_next - pos_ref) / T + eps * np.sign(pos_err) + k * pos_err
@@ -175,31 +175,25 @@ if __name__ == "__main__":
             cable_length_err) + k * cable_length_err  # control law
         print('veloJoint (linear): {}'.format(velo_tag2))
 
-
-        # inverse kinematics
-        veloJoint2 = np.matmul(J, veloTask.reshape(3, 1))
-        veloJoint2 = veloJoint2.reshape(4, )
-        print('veloJoint_add: {}'.format(veloJoint2))
-        if 30 < cnt < 60 or 210 < cnt < 270:
-            veloJoint = veloJoint2
+        velo_tag = velo_tag1
+        if 90 < cnt < 120 or 270 < cnt < 330:
+            velo_tag = velo_tag2
         else:
-            veloJoint = veloJoint1
+            velo_tag = velo_tag1
 
         # convert linear velocities to velocities of motors
-        veloJoint = veloJoint*60*10/(0.03*math.pi)      # 10 is the gear ratio, 0.03 is diameter of the coil
-        print('veloJoint (motor): {}'.format(veloJoint))
+        velo_motor = velo_tag * 60 * 10 / (0.03*math.pi)      # 10 is the gear ratio, 0.03 is diameter of the coil
+        print('Motor velocities: {}'.format(velo_motor))
 
         # set cable velocity in joint space
         velo_limit = 600
-        for i in range(4):
-            if np.abs(veloJoint[i]) > velo_limit:      # velovity limit
-                veloJoint[i] = velo_limit * np.sign(veloJoint[i])
-        set_start_time = time.time()
-        cdpr.set_motor_velo(int(veloJoint[0]), int(veloJoint[1]), int(veloJoint[2]), int(veloJoint[3]))
-        print('motor velo: {}, {}, {}, {}'.format(veloJoint[0], veloJoint[1], veloJoint[2], veloJoint[3]))
-        print(time.time() - set_start_time)
-        
-        
+        for vel in velo_motor:
+            if np.abs(vel) > velo_limit:      # velocity limit
+                vel = velo_limit * np.sign(vel)
+
+        cdpr.set_motor_velo(int(velo_motor[0]), int(velo_motor[1]), int(velo_motor[2]), int(velo_motor[3]))
+        print('motor velo: {}, {}, {}, {}'.format(velo_motor[0], velo_motor[1], velo_motor[2], velo_motor[3]))
+
         x_r_list.append(pos_ref[0])
         y_r_list.append(pos_ref[1])
         z_r_list.append(pos_ref[2])
@@ -208,10 +202,10 @@ if __name__ == "__main__":
         y_list.append(pos[1])
         z_list.append(pos[2])
 
-        cl1_r_list.append(cable1_length_ref)
-        cl2_r_list.append(cable2_length_ref)
-        cl3_r_list.append(cable3_length_ref)
-        cl4_r_list.append(cable4_length_ref)
+        cl1_r_list.append(cable_length_ref[0])
+        cl2_r_list.append(cable_length_ref[1])
+        cl3_r_list.append(cable_length_ref[2])
+        cl4_r_list.append(cable_length_ref[3])
 
         cl1_list.append(cable_length[0])
         cl2_list.append(cable_length[1])
@@ -222,27 +216,26 @@ if __name__ == "__main__":
         pos_list = np.row_stack((pos_list, pos))
         pos_ref_list = np.row_stack((pos_ref_list, pos_ref))
         cable_length_ref_list = np.row_stack((cable_length_ref_list, cable_length_ref))
-        cable_length_list = np.row_stack((cable_length_list, cable_length_next))
-        length_controller_list = np.row_stack((length_controller_list, veloJoint1))
-        velocity_controller_task_list = np.row_stack((velocity_controller_task_list, veloTask))
-        velocity_controller_joint_list = np.row_stack((velocity_controller_joint_list, veloJoint2))
-        motor_velo_list = np.row_stack((motor_velo_list, veloJoint))
+        cable_length_list = np.row_stack((cable_length_list, cable_length))
+        # length_controller_list = np.row_stack((length_controller_list, veloJoint1))
+        # velocity_controller_task_list = np.row_stack((velocity_controller_task_list, veloTask))
+        # velocity_controller_joint_list = np.row_stack((velocity_controller_joint_list, veloJoint2))
+        motor_velo_list = np.row_stack((motor_velo_list, velo_motor))
 
         end_time = time.time()
-        print(end_time - start_time)
+        print("loop time: {}".format(end_time - start_time))
 
         rate.sleep()
 
     cdpr.set_motor_velo(0, 0, 0, 0)
 
-
     # save trajectory datas
     np.savetxt(pos_ref_save_path, pos_ref_list)
     np.savetxt(pos_save_path, pos_list)
     np.savetxt(cable_length_ref_save_path, cable_length_ref_list)
-    np.savetxt(cable_length_save_path, cable_length_list)
-    np.savetxt(length_controller_save_path, length_controller_list)
-    np.savetxt(velocity_controller_task_save_path, velocity_controller_task_list)
+    # np.savetxt(cable_length_save_path, cable_length_list)
+    # np.savetxt(length_controller_save_path, length_controller_list)
+    # np.savetxt(velocity_controller_task_save_path, velocity_controller_task_list)
     np.savetxt(velocity_controller_joint_save_path, velocity_controller_joint_list)
     np.savetxt(motor_velo_save_path, motor_velo_list)
     print('data saved.')
@@ -279,7 +272,6 @@ if __name__ == "__main__":
     y_plot.set_ylabel('y')
     z_plot.set_ylabel('z')
 
-    
     plt.ioff()
     plt.show()
     
