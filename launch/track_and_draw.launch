@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="collision4" type="track_collision.py" name="cdpr_control" cwd="node" output="screen"/>
+    <node pkg="collision4" type="draw.py" name="draw" cwd="node" output="screen"/>
+
+</launch>
