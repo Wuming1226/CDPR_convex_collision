@@ -10,7 +10,6 @@ from std_msgs.msg import Int16MultiArray, Int64MultiArray
 
 from wcs import Edge, WCS
 from calculate_separation_v2 import calculate_cable_length
-# from transform import quaternion2euler
 
 
 class CDPR:
@@ -28,36 +27,31 @@ class CDPR:
 
         self._veloPub = rospy.Publisher('motor_velo', Int16MultiArray, queue_size=10)
 
-        # anchor positions in the world frame
-        self._anchorA1 = np.array([0.342, 0.342, 0.750])
-        self._anchorA2 = np.array([-0.342, 0.342, 0.750])
-        self._anchorA3 = np.array([-0.342, -0.342, 0.750])
-        self._anchorA4 = np.array([0.342, -0.342, 0.750])
-
-        # anchors on the moving platform (body frame)
-        self._anchorB1 = np.array([0, 0, 0])
-        self._anchorB2 = np.array([0, 0, 0])
-        self._anchorB3 = np.array([0, 0, 0])
-        self._anchorB4 = np.array([0, 0, 0])
-
+        # 测量数据
         self.middle_level = 0.172
         Om1 = np.array([0.363, 0.264, self.middle_level])
         Om2 = np.array([0.137, 0.264, self.middle_level])
         Om3 = np.array([0.136, 0.039, self.middle_level])
         Om4 = np.array([0.362, 0.039, self.middle_level])
-        Ob1 = np.array([0.363, 0.264, 0.040])
-        Ob2 = np.array([0.137, 0.264, 0.040])
-        Ob3 = np.array([0.136, 0.039, 0.036])
-        Ob4 = np.array([0.363, 0.039, 0.036])
+        Ob1 = np.array([0.363, 0.264, 0.000])
+        Ob2 = np.array([0.137, 0.264, 0.000])
+        Ob3 = np.array([0.136, 0.039, 0.000])
+        Ob4 = np.array([0.363, 0.039, 0.000])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
-        Ot = np.array([center_x, center_y, 0.334])
+        Ot = np.array([0.245, 0.152, 0.336])
 
         # origin point offset (coordinates in world frame)
         self.xOff = center_x
         self.yOff = center_y
-        self.zOff = -0.023
+        self.zOff = 0.0
         self.pos_off = np.array([self.xOff, self.yOff, self.zOff])
+
+        # anchor positions in the world frame
+        self._anchorA1 = np.array([0.342, 0.342, 0.732])
+        self._anchorA2 = np.array([-0.342, 0.342, 0.732])
+        self._anchorA3 = np.array([-0.342, -0.342, 0.732])
+        self._anchorA4 = np.array([0.342, -0.342, 0.735])
 
         anchor1 = Edge(self._anchorA1, self._anchorA1)
         anchor2 = Edge(self._anchorA2, self._anchorA2)
@@ -165,7 +159,7 @@ class CDPR:
             [self._moving_platform_pose.pose.orientation.x, self._moving_platform_pose.pose.orientation.y, self._moving_platform_pose.pose.orientation.z, self._moving_platform_pose.pose.orientation.w]
 
     def get_cable_length(self):
-        r = 0.03 * np.pi / 10000 / 10
+        r = 0.033 * np.pi / 10000 / 10
         cable_length = (self._motor_pos - self._ori_motor_pos) * r + self._ori_cable_lengths
         return cable_length
     
@@ -241,14 +235,14 @@ if __name__ == "__main__":
     rate = rospy.Rate(10)
     # cdpr.pretighten()
     time.sleep(3)
-    cdpr.pretighten(True, True, True, True)
+    # cdpr.pretighten(True, True, True, True)
     cdpr.init_cable_length(True, True, True, True)
     time.sleep(1)
     cdpr.set_motor_velo(0, 0, 0, 0)
     start_time = time.time()
     while time.time() - start_time < 5:
         # cdpr.set_motor_velo(0, 100, 0, 0)
-        print(cdpr.get_moving_platform_pose())
+        # print(cdpr.get_moving_platform_pose())
         print(cdpr.get_cable_length())
         time.sleep(0.05)
     cdpr.set_motor_velo(0, 0, 0, 0)

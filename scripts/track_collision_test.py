@@ -2,25 +2,9 @@
 
 import time
 import numpy as np
-import math
-# import rospy
 import matplotlib.pyplot as plt
 
 from cdpr_test import CDPR
-# from transform import euler2quaternion
-# from Jacobian import getJacobian
-# from wcs import Edge, WCS
-
-folder = '/data/beta/'
-file_order = ''
-pos_ref_save_path = folder + 'pos_ref' + file_order + '.txt'
-pos_save_path = folder + 'pos' + file_order + '.txt'
-cable_length_ref_save_path = folder + 'cable_length_ref' + file_order + '.txt'
-cable_length_save_path = folder + 'cable_length' + file_order + '.txt'
-length_controller_save_path = folder + 'length_controller' + file_order + '.txt'
-velocity_controller_task_save_path = folder + 'velocity_controller_task' + file_order + '.txt'
-velocity_controller_joint_save_path = folder + 'velocity_controller_joint' + file_order + '.txt'
-motor_velo_save_path = folder + 'motor_velo_' + file_order + '.txt'
 
 
 if __name__ == "__main__":
@@ -49,11 +33,11 @@ if __name__ == "__main__":
 
     cnt = 0
 
-    A1 = np.array([0.342, 0.342, 0.750])
-    A2 = np.array([-0.342, 0.342, 0.750])
-    A3 = np.array([-0.342, -0.342, 0.750])
-    A4 = np.array([0.342, -0.342, 0.750])
-    Ot = np.array([0.000, 0.000, 0.334])
+    A1 = np.array([0.342, 0.342, 0.732])
+    A2 = np.array([-0.342, 0.342, 0.732])
+    A3 = np.array([-0.342, -0.342, 0.732])
+    A4 = np.array([0.342, -0.342, 0.735])
+    Ot = np.array([0.242, 0.145, 0.336]) - cdpr.pos_off
     Om1 = np.array([0.363, 0.264, 0.172]) - cdpr.pos_off
     Om2 = np.array([0.137, 0.264, 0.172]) - cdpr.pos_off
     Om3 = np.array([0.136, 0.039, 0.172]) - cdpr.pos_off
@@ -91,18 +75,18 @@ if __name__ == "__main__":
         elif cnt < 120:     # 在目标位置1定位
             pos_ref = target1
         elif cnt < 150:     # 从目标位置1到达轨迹初始位置
-            start = np.array([0.150 + cdpr.xOff, 0.150 + cdpr.yOff, traject_height + cdpr.zOff])
+            start = np.array([0.150 + cdpr.xOff, 0.150 + cdpr.yOff, traject_height])
             pos_ref = (start - target1) / 30 * (cnt - 120) + target1
         elif cnt < 210:     # 轨迹第一段
             y = 0.150 - 0.005 * (cnt - 150)
-            pos_ref = np.array([0.150 + cdpr.xOff, y + cdpr.yOff, traject_height + cdpr.zOff])
+            pos_ref = np.array([0.150 + cdpr.xOff, y + cdpr.yOff, traject_height])
         elif cnt < 270:     # 轨迹第二段
             x = 0.150 - 0.005 * (cnt - 210)
-            pos_ref = np.array([x + cdpr.xOff, -0.150 + cdpr.yOff, traject_height + cdpr.zOff])
+            pos_ref = np.array([x + cdpr.xOff, -0.150 + cdpr.yOff, traject_height])
         elif cnt < 330:     # 在目标点2上方定位
-            pos_ref = np.array([-0.150 + cdpr.xOff, -0.150 + cdpr.yOff, traject_height + cdpr.zOff])
+            pos_ref = np.array([-0.150 + cdpr.xOff, -0.150 + cdpr.yOff, traject_height])
         elif cnt < 360:     # 从目标位置2到达安全位置2
-            start = np.array([-0.150 + cdpr.xOff, -0.150 + cdpr.yOff, traject_height + cdpr.zOff])
+            start = np.array([-0.150 + cdpr.xOff, -0.150 + cdpr.yOff, traject_height])
             end = safe_point2
             pos_ref = (end - start) / 30 * (cnt - 330) + start
         else:               # 从安全位置2到达初始位置

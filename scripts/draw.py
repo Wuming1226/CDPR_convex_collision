@@ -2,8 +2,6 @@
 
 import time
 import numpy as np
-import math
-# import rospy
 import matplotlib.pyplot as plt
 
 folder = '../data/beta/'
@@ -84,6 +82,6 @@ if __name__ == "__main__":
         y_plot.set_ylabel('y')
         z_plot.set_ylabel('z')
 
-        plt.pause(1)
+        plt.pause(0.5)
         plt.clf()
 

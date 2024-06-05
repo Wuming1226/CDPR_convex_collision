@@ -5,7 +5,6 @@ import numpy as np
 
 from wcs import Edge, WCS
 from calculate_separation_v2 import calculate_cable_length
-# from transform import quaternion2euler
 
 
 class CDPR:
@@ -23,18 +22,7 @@ class CDPR:
 
         # self._veloPub = rospy.Publisher('motor_velo', Int16MultiArray, queue_size=10)
 
-        # anchor positions in the world frame
-        self._anchorA1 = np.array([0.342, 0.342, 0.750])
-        self._anchorA2 = np.array([-0.342, 0.342, 0.750])
-        self._anchorA3 = np.array([-0.342, -0.342, 0.750])
-        self._anchorA4 = np.array([0.342, -0.342, 0.750])
-
-        # anchors on the moving platform (body frame)
-        self._anchorB1 = np.array([0, 0, 0])
-        self._anchorB2 = np.array([0, 0, 0])
-        self._anchorB3 = np.array([0, 0, 0])
-        self._anchorB4 = np.array([0, 0, 0])
-
+        # 测量数据
         Om1 = np.array([0.363, 0.264, 0.172])
         Om2 = np.array([0.137, 0.264, 0.172])
         Om3 = np.array([0.136, 0.039, 0.172])
@@ -45,13 +33,19 @@ class CDPR:
         Ob4 = np.array([0.363, 0.039, 0.036])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
-        Ot = np.array([center_x, center_y, 0.334])
+        Ot = np.array([0.242, 0.145, 0.336])
 
         # origin point offset (coordinates in world frame)
         self.xOff = center_x
         self.yOff = center_y
-        self.zOff = -0.023
+        self.zOff = -0.00
         self.pos_off = np.array([self.xOff, self.yOff, self.zOff])
+
+        # anchor positions in the world frame
+        self._anchorA1 = np.array([0.342, 0.342, 0.732])
+        self._anchorA2 = np.array([-0.342, 0.342, 0.732])
+        self._anchorA3 = np.array([-0.342, -0.342, 0.732])
+        self._anchorA4 = np.array([0.342, -0.342, 0.735])
 
         anchor1 = Edge(self._anchorA1, self._anchorA1)
         anchor2 = Edge(self._anchorA2, self._anchorA2)
