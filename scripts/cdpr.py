@@ -36,7 +36,7 @@ class CDPR:
         Ob1 = np.array([0.363, 0.264, 0.000])
         Ob2 = np.array([0.137, 0.264, 0.000])
         Ob3 = np.array([0.136, 0.039, 0.000])
-        Ob4 = np.array([0.363, 0.039, 0.000])
+        Ob4 = np.array([0.362, 0.039, 0.000])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
         Ot = np.array([0.245, 0.152, 0.336])
