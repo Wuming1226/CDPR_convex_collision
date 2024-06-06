@@ -3,7 +3,7 @@ import numpy as np
 import time
 from calculate_separation_v2 import (calculate_separation_1, calculate_separation_2, calculate_separation_3,
                                      check_new_collision, check_collision_infinite, get_distance_between_lines,
-                                     calculate_cable_length)
+                                     calculate_cable_length, get_united_normal_vector)
 # import calculate_separation_v1 as v1
 import matplotlib.pyplot as plt
 
@@ -23,6 +23,23 @@ class Edge:
 class WCS:
     def __init__(self, root, all_nodes, init_tree=None):
         self.remained_nodes = all_nodes[:]  # 记录剩余节点 （切片复制新建地址）
+
+        self.all_vertex = []  # 记录所有顶点
+        for node in all_nodes:
+            is_new = True
+            for vertex in self.all_vertex:
+                if np.array_equal(node.end1, vertex):
+                    is_new = False
+            if is_new:
+                self.all_vertex.append(node.end1)
+
+            is_new = True
+            for vertex in self.all_vertex:
+                if np.array_equal(node.end2, vertex):
+                    is_new = False
+            if is_new:
+                self.all_vertex.append(node.end2)
+
         if init_tree is None:
             init_tree = []
         self.tree = [root]
@@ -38,6 +55,30 @@ class WCS:
     def _remove_node(self, removed_node: Edge):
         self.tree.remove(removed_node)
         self.remained_nodes.append(removed_node)
+
+    def check_coplanar_and_outside(self, edge1, edge2):
+        if np.array_equal(edge1.end1, edge1.end2):
+            norm = get_united_normal_vector(edge1.end1, edge2.end1, edge2.end2)
+        elif np.array_equal(edge2.end1, edge2.end2):
+            norm = get_united_normal_vector(edge1.end1, edge1.end2, edge2.end1)
+        elif np.array_equal(edge1.end1, edge2.end1) or np.array_equal(edge1.end1, edge2.end2):
+            norm = get_united_normal_vector(edge1.end2, edge2.end1, edge2.end2)
+            if np.dot(edge1.end1 - edge1.end2, norm) != 0:  # 不共面
+                return False
+        else:
+            norm = get_united_normal_vector(edge1.end1, edge2.end1, edge2.end2)
+            if np.dot(edge1.end1 - edge1.end2, norm) != 0:  # 不共面
+                return False
+
+        check_list = []
+        for vertex in self.all_vertex:
+            vec = edge2.end1 - vertex
+            check_list.append(np.dot(vec, norm))
+
+        if (np.array(check_list) >= 0).all() or (np.array(check_list) <= 0).all():  # 若所有顶点都在该面的一侧，则该面在多面体外
+            return True
+        else:
+            return False
 
     def update(self, new_leaf):
         # 尝试更新
@@ -56,6 +97,7 @@ class WCS:
                                                          self.tree[3], np.array([0, 0, 0]))
             # print(separations, ratios)
 
+        is_first = True
         is_correct = False
         while not is_correct:  # 消除奇异点（主要为因步长离散而连续过多个顶点的情况）
 
@@ -101,7 +143,7 @@ class WCS:
                     break
 
             # 2.检测自由段是否碰撞新的棱
-            if not is_diff:
+            if not is_diff and is_first:
                 ori_len = len(self.tree)
                 for edge in self.remained_nodes:
                     dist, t1, t2 = get_distance_between_lines(whole_waypoint[-2], whole_waypoint[-1], edge.end1,
@@ -109,13 +151,20 @@ class WCS:
                     if 0 < t1 < 1 and 0 < t2 < 1:  # 两线段投影是否相交
                         if dist <= 0.005:  # 距离阈值，距离小于该阈值认为可能将发生碰撞
                             # 检测碰撞
-                            if check_collision_infinite(whole_waypoint[-2], whole_waypoint[-1], edge,
-                                                        np.array([0, 0, 0])):
+                            if check_collision_infinite(whole_waypoint[-2], whole_waypoint[-1], edge):
                                 _, ratio = calculate_separation_1(whole_waypoint[-2], whole_waypoint[-1], edge)
                                 if 0 < ratio[0] < 1:
                                     self._add_node(edge, self.tree[-1])
-                                    # 排除奇异情况
-                                    if len(self.tree) == 3:
+                                    # 排除进入内部的情况
+                                    if len(self.tree) == 2:
+                                        _, ratios = calculate_separation_1(whole_waypoint[0], whole_waypoint[-1],
+                                                                           self.tree[-1])
+                                        if ratios[0] < 0 or ratios[0] > 1:
+                                            self._remove_node(edge)
+                                        else:
+                                            print("collide on a new edge")
+                                            break
+                                    elif len(self.tree) == 3 and self.check_coplanar_and_outside(edge, self.tree[-2]):
                                         _, ratios = calculate_separation_2(whole_waypoint[0], whole_waypoint[-1],
                                                                            self.tree[-2], self.tree[-1],
                                                                            np.array([0, 0, 0]))
@@ -123,7 +172,8 @@ class WCS:
                                             self._remove_node(edge)
                                         else:
                                             print("collide on a new edge")
-                                    elif len(self.tree) == 4:
+                                            break
+                                    elif len(self.tree) == 4 and self.check_coplanar_and_outside(edge, self.tree[-2]):
                                         _, ratios = calculate_separation_3(whole_waypoint[0], whole_waypoint[-1],
                                                                            self.tree[-3], self.tree[-2], self.tree[-1],
                                                                            np.array([0, 0, 0]))
@@ -132,22 +182,24 @@ class WCS:
                                             self._remove_node(edge)
                                         else:
                                             print("collide on a new edge")
+                                            break
                                     else:
-                                        print("collide on a new edge")
+                                        self._remove_node(edge)
+
                 if len(self.tree) == ori_len:
                     is_diff = False
                 else:
                     is_diff = True
 
             # 3.检测最末两段是否离开最后一个棱
-            if not is_diff:
+            if not is_diff and is_first:
                 if separations:
-                    if not check_collision_infinite(whole_waypoint[-3], whole_waypoint[-1], self.tree[-1],
-                                                    np.array([0, 0, 0])):
+                    if not check_collision_infinite(whole_waypoint[-3], whole_waypoint[-1], self.tree[-1]):
                         self._remove_node(self.tree[-1])
                         is_diff = True
                         print("leave an edge")
 
+            is_first = False
             is_correct = True
             if is_diff:
                 # 重新更新
