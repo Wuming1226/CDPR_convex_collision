@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     cdpr = CDPR()
 
-    T = 0.1     # control period
+    T = 0.005     # control period
     
     x_r_list, y_r_list, z_r_list = [], [], []
     x_list, y_list, z_list = [], [], []
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     target1 = np.array([0.180, 0.140, 0.100]) + cdpr.pos_off
     safe_point1 = np.array([0.200, 0.150, 0.250]) + cdpr.pos_off  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250]) + cdpr.pos_off  # 安全位置2
-    traject_height = -0.075 + 0.172    # 轨迹高度（相对于中棱面）
+    traject_height = -0.055 + 0.172    # 轨迹高度（相对于中棱面）
 
     c1_show = True
     c2_show = True
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     A2 = np.array([-0.342, 0.342, 0.732])
     A3 = np.array([-0.342, -0.342, 0.732])
     A4 = np.array([0.342, -0.342, 0.735])
-    Ot = np.array([0.242, 0.145, 0.336]) - cdpr.pos_off
+    Ot = np.array([0.245, 0.152, 0.336]) - cdpr.pos_off
     Om1 = np.array([0.363, 0.264, 0.172]) - cdpr.pos_off
     Om2 = np.array([0.137, 0.264, 0.172]) - cdpr.pos_off
     Om3 = np.array([0.136, 0.039, 0.172]) - cdpr.pos_off
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     Ob1 = np.array([0.363, 0.264, 0.0]) - cdpr.pos_off
     Ob2 = np.array([0.137, 0.264, 0.0]) - cdpr.pos_off
     Ob3 = np.array([0.136, 0.039, 0.0]) - cdpr.pos_off
-    Ob4 = np.array([0.363, 0.039, 0.0]) - cdpr.pos_off
+    Ob4 = np.array([0.362, 0.039, 0.0]) - cdpr.pos_off
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')
@@ -139,6 +139,8 @@ if __name__ == "__main__":
                     x.insert(-1, each[0])
                     y.insert(-1, each[1])
                     z.insert(-1, each[2])
+                    if c1_show:
+                        ax.scatter3D(x, y, z, marker='X', color='cyan')
             if c1_show:
                 ax.plot(x, y, z, label='parametric curve', color='cyan')
 
@@ -150,6 +152,8 @@ if __name__ == "__main__":
                     x.insert(-1, each[0])
                     y.insert(-1, each[1])
                     z.insert(-1, each[2])
+                    if c2_show:
+                        ax.scatter3D(x, y, z, marker='X', color='red')
             if c2_show:
                 ax.plot(x, y, z, label='parametric curve', color='red')
 
@@ -161,6 +165,8 @@ if __name__ == "__main__":
                     x.insert(-1, each[0])
                     y.insert(-1, each[1])
                     z.insert(-1, each[2])
+                    if c3_show:
+                        ax.scatter3D(x, y, z, marker='X', color='green')
             if c3_show:
                 ax.plot(x, y, z, label='parametric curve', color='green')
 
@@ -172,6 +178,8 @@ if __name__ == "__main__":
                     x.insert(-1, each[0])
                     y.insert(-1, each[1])
                     z.insert(-1, each[2])
+                    if c4_show:
+                        ax.scatter3D(x, y, z, marker='X', color='yellow')
             if c4_show:
                 ax.plot(x, y, z, label='parametric curve', color='yellow')
 
@@ -179,7 +187,7 @@ if __name__ == "__main__":
             ax.set_ylim(-0.4, 0.4)
             ax.set_zlim(0, 0.6)
             plt.gca().set_box_aspect((1, 1, 0.6/0.8))
-            plt.pause(0.1)
+            plt.pause(T)
 
     plt.ioff()  # 关闭交互模式
     plt.show()
