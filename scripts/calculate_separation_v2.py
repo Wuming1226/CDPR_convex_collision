@@ -94,12 +94,11 @@ def get_intersection(Apoint, Bpoint, Cpoint1, Cpoint2):
     return Cpoint1 + vector1 * ratio, ratio  # position of the intersection
 
 
-def check_collision_infinite(Apoint, Bpoint, edge, inner_point):
+def check_collision_infinite(Apoint, Bpoint, edge):
     """
     :param Apoint: fixed end of the cable
     :param Bpoint: free end of the cable
     :param edge: edge
-    :param inner_point: a point inside the convex polyhedron
     :return: whether collision occurs on the bar
 
     case:
@@ -116,14 +115,8 @@ def check_collision_infinite(Apoint, Bpoint, edge, inner_point):
     Cpoint1 = edge.end1
     Cpoint2 = edge.end2
     norm_vector1 = get_united_normal_vector(Apoint, Cpoint1, Cpoint2)
-    axis = (Cpoint2 - Cpoint1) / np.linalg.norm(Cpoint2 - Cpoint1)
-    if np.dot(norm_vector1, Cpoint1 - inner_point) < 0:
-        norm_vector1 = get_united_normal_vector(Apoint, Cpoint2, Cpoint1)
-        axis = (Cpoint1 - Cpoint2) / np.linalg.norm(Cpoint1 - Cpoint2)
-
     norm_vector2 = get_united_normal_vector(Bpoint, Cpoint2, Cpoint1)
-    if np.dot(norm_vector2, Cpoint1 - inner_point) < 0:
-        norm_vector2 = get_united_normal_vector(Bpoint, Cpoint1, Cpoint2)
+    axis = (Cpoint2 - Cpoint1) / np.linalg.norm(Cpoint2 - Cpoint1)
 
     # collision occurs when the angle between norm vectors of two planes is bigger than 90°
     if np.dot(np.cross(norm_vector1, norm_vector2), axis) > 0:
