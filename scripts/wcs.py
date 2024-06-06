@@ -148,6 +148,7 @@ class WCS:
                         is_diff = True
                         print("leave an edge")
 
+            is_correct = True
             if is_diff:
                 # 重新更新
                 tree_depth = len(self.tree) - 1
@@ -164,10 +165,9 @@ class WCS:
                                                                  self.tree[2], self.tree[3], np.array([0, 0, 0]))
                     # print(separations, ratios)
 
-            is_correct = True
-            for ratio in ratios:  # 检测解的合理性
-                if ratio <= 0 or ratio >= 1:
-                    is_correct = False
+                for ratio in ratios:  # 检测解的合理性
+                    if ratio <= 0 or ratio >= 1:
+                        is_correct = False
 
         return separations
 
