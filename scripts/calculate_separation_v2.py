@@ -94,11 +94,12 @@ def get_intersection(Apoint, Bpoint, Cpoint1, Cpoint2):
     return Cpoint1 + vector1 * ratio, ratio  # position of the intersection
 
 
-def check_collision_infinite(Apoint, Bpoint, edge):
+def check_collision_infinite(Apoint, Bpoint, edge, inner_point):
     """
     :param Apoint: fixed end of the cable
     :param Bpoint: free end of the cable
     :param edge: edge
+    :param inner_point: a point inside the polyhedron
     :return: whether collision occurs on the bar
 
     case:
@@ -117,9 +118,13 @@ def check_collision_infinite(Apoint, Bpoint, edge):
     norm_vector1 = get_united_normal_vector(Apoint, Cpoint1, Cpoint2)
     norm_vector2 = get_united_normal_vector(Bpoint, Cpoint2, Cpoint1)
     axis = (Cpoint2 - Cpoint1) / np.linalg.norm(Cpoint2 - Cpoint1)
+    if np.dot(Cpoint1 - inner_point, norm_vector1) < 0:     # 第一个面总是在多面体外，且要求 norm1 总指向体外
+        norm_vector1 = get_united_normal_vector(Apoint, Cpoint2, Cpoint1)
+        norm_vector2 = get_united_normal_vector(Bpoint, Cpoint1, Cpoint2)
+        axis = (Cpoint1 - Cpoint2) / np.linalg.norm(Cpoint1 - Cpoint2)
 
     # collision occurs when the angle between norm vectors of two planes is bigger than 90°
-    if np.dot(np.cross(norm_vector1, norm_vector2), axis) > 0:
+    if np.dot(np.cross(norm_vector1, norm_vector2), axis) > 0:  # 可能的 warning 来自于高版本 np.cross 的 bug，不影响运行
         return True
     else:
         return False

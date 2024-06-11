@@ -122,33 +122,36 @@ class CDPR:
         else:
             self._motor_pos = np.array(data.data)
 
-    def update_cable_state(self, fake_new_leaf=None):
-        if fake_new_leaf is not None:
-            fake_wcs1 = copy.deepcopy(self.wcs1)
-            fake_wcs2 = copy.deepcopy(self.wcs2)
-            fake_wcs3 = copy.deepcopy(self.wcs3)
-            fake_wcs4 = copy.deepcopy(self.wcs4)
-            waypoints1 = fake_wcs1.update(fake_new_leaf)
-            waypoints2 = fake_wcs2.update(fake_new_leaf)
-            waypoints3 = fake_wcs3.update(fake_new_leaf)
-            waypoints4 = fake_wcs4.update(fake_new_leaf)
-            del fake_wcs1, fake_wcs2, fake_wcs3, fake_wcs4
-            return [calculate_cable_length(self._anchorA1, waypoints1, fake_new_leaf),
-                    calculate_cable_length(self._anchorA2, waypoints2, fake_new_leaf),
-                    calculate_cable_length(self._anchorA3, waypoints3, fake_new_leaf),
-                    calculate_cable_length(self._anchorA4, waypoints4, fake_new_leaf)]
-
+    def update_cable_state(self, new_leaf=None, is_fake=False):
+        if new_leaf is None:
+            new_leaf = np.array([self._moving_platform_pose.pose.position.x, self._moving_platform_pose.pose.position.y,
+                                 self._moving_platform_pose.pose.position.z])
+            waypoints1 = self.wcs1.update(new_leaf)
+            waypoints2 = self.wcs2.update(new_leaf)
+            waypoints3 = self.wcs3.update(new_leaf)
+            waypoints4 = self.wcs4.update(new_leaf)
         else:
-            pos = np.array([self._moving_platform_pose.pose.position.x, self._moving_platform_pose.pose.position.y,
-                            self._moving_platform_pose.pose.position.z])
-            waypoints1 = self.wcs1.update(pos)
-            waypoints2 = self.wcs2.update(pos)
-            waypoints3 = self.wcs3.update(pos)
-            waypoints4 = self.wcs4.update(pos)
-            return [calculate_cable_length(self._anchorA1, waypoints1, pos),
-                    calculate_cable_length(self._anchorA2, waypoints2, pos),
-                    calculate_cable_length(self._anchorA3, waypoints3, pos),
-                    calculate_cable_length(self._anchorA4, waypoints4, pos)]
+            if not is_fake:
+                waypoints1 = self.wcs1.update(new_leaf)
+                waypoints2 = self.wcs2.update(new_leaf)
+                waypoints3 = self.wcs3.update(new_leaf)
+                waypoints4 = self.wcs4.update(new_leaf)
+            else:
+                fake_wcs1 = copy.deepcopy(self.wcs1)
+                fake_wcs2 = copy.deepcopy(self.wcs2)
+                fake_wcs3 = copy.deepcopy(self.wcs3)
+                fake_wcs4 = copy.deepcopy(self.wcs4)
+                waypoints1 = fake_wcs1.update(new_leaf)
+                waypoints2 = fake_wcs2.update(new_leaf)
+                waypoints3 = fake_wcs3.update(new_leaf)
+                waypoints4 = fake_wcs4.update(new_leaf)
+                del fake_wcs1, fake_wcs2, fake_wcs3, fake_wcs4
+
+        return [calculate_cable_length(self._anchorA1, waypoints1, new_leaf),
+                calculate_cable_length(self._anchorA2, waypoints2, new_leaf),
+                calculate_cable_length(self._anchorA3, waypoints3, new_leaf),
+                calculate_cable_length(self._anchorA4, waypoints4, new_leaf)]
+
 
     def set_motor_velo(self, motor1Velo, motor2Velo, motor3Velo, motor4Velo):
         motor_velo = Int16MultiArray(data=np.array([motor1Velo, motor2Velo, motor3Velo, motor4Velo]))
@@ -159,7 +162,7 @@ class CDPR:
             [self._moving_platform_pose.pose.orientation.x, self._moving_platform_pose.pose.orientation.y, self._moving_platform_pose.pose.orientation.z, self._moving_platform_pose.pose.orientation.w]
 
     def get_cable_length(self):
-        r = 0.033 * np.pi / 10000 / 10
+        r = 0.0327 * np.pi / 10000 / 10
         cable_length = (self._motor_pos - self._ori_motor_pos) * r + self._ori_cable_lengths
         return cable_length
     

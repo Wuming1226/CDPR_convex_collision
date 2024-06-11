@@ -48,7 +48,7 @@ if __name__ == "__main__":
     target1 = np.array([0.180, 0.140, 0.100]) + cdpr.pos_off
     safe_point1 = np.array([0.200, 0.150, 0.250]) + cdpr.pos_off  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250]) + cdpr.pos_off  # 安全位置2
-    traject_height = -0.075 + cdpr.middle_level  # 轨迹高度（实测）
+    traject_height = -0.060 + cdpr.middle_level  # 轨迹高度（实测）
 
     tighten_flag = True
 
@@ -105,13 +105,13 @@ if __name__ == "__main__":
             pos_ref = (end - start) / 30 * (cnt - 360) + start
 
         pos_ref = pos_ref - cdpr.pos_off
-        cable_length_ref = cdpr.update_cable_state(pos_ref)
+        cable_length_ref = cdpr.update_cable_state(pos_ref, is_fake=True)
         cable_length_ref = np.array(cable_length_ref)
         print('pos_ref: {}'.format(pos_ref))
         print('cable_length_ref: {}'.format(cable_length_ref))
 
         cnt += 1
-        cdpr.update_cable_state()
+        cdpr.update_cable_state(pos_ref)
 
         if cnt < 30:  # 从初始位置到达安全位置1
             start = np.array([cdpr.xOff, cdpr.yOff, 0.430])
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             pos_ref_next = (end - start) / 30 * (cnt - 360) + start
 
         pos_ref_next = pos_ref_next - cdpr.pos_off
-        cable_length_ref_next = cdpr.update_cable_state(pos_ref_next)
+        cable_length_ref_next = cdpr.update_cable_state(pos_ref_next, is_fake=True)
         cable_length_ref_next = np.array(cable_length_ref_next)
         print('pos_ref_next: {}'.format(pos_ref_next))
         print('cable_length_ref_next: {}'.format(cable_length_ref_next))
@@ -175,24 +175,24 @@ if __name__ == "__main__":
                      k * cable_length_err)           # control law
         print('velo_tag1: {}'.format(velo_tag1))
 
-        # pseudo velocity mapping
-        eps = 0.000
-        k = 8
-        velo_task = (pos_ref_next - pos_ref) / T + eps * np.sign(pos_err) + k * pos_err
-        pos_tag = pos + velo_task * T
-        print("pos_tag: {}".format(pos_tag))
-        cable_length_tag = cdpr.update_cable_state(fake_new_leaf=pos_tag)
-        print("cable_length_tag: {}".format(cable_length_tag))
-
-        kp = 2.5
-        kd = 0
-        velo_tag2 = kp * (cable_length_tag - cable_length) + kd * (cable_length_tag - cable_length - lst_err)     # control law
-        lst_err = cable_length_tag - cable_length
-        print('velo_tag2: {}'.format(velo_tag2))
+        # # pseudo velocity mapping
+        # eps = 0.000
+        # k = 8
+        # velo_task = (pos_ref_next - pos_ref) / T + eps * np.sign(pos_err) + k * pos_err
+        # pos_tag = pos + velo_task * T
+        # print("pos_tag: {}".format(pos_tag))
+        # cable_length_tag = cdpr.update_cable_state(pos_tag, is_fake=True)
+        # print("cable_length_tag: {}".format(cable_length_tag))
+        #
+        # kp = 2.5
+        # kd = 0
+        # velo_tag2 = kp * (cable_length_tag - cable_length) + kd * (cable_length_tag - cable_length - lst_err)     # control law
+        # lst_err = cable_length_tag - cable_length
+        # print('velo_tag2: {}'.format(velo_tag2))
 
         velo_tag = velo_tag1
         if 90 < cnt < 120 or 270 < cnt < 330:
-            velo_tag = velo_tag2
+            velo_tag = velo_tag1
         else:
             velo_tag = velo_tag1
 
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         velo_motor = velo_tag * 60 * 10 / (0.03*math.pi)      # 10 is the gear ratio, 0.03 is diameter of the coil
 
         # set cable velocity in joint space
-        velo_limit = 400
+        velo_limit = 600
         for i, vel in enumerate(velo_motor):
             if np.abs(vel) > velo_limit:      # velocity limit
                 velo_motor[i] = velo_limit * np.sign(vel)

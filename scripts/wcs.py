@@ -63,11 +63,9 @@ class WCS:
             norm = get_united_normal_vector(edge1.end1, edge1.end2, edge2.end1)
         elif np.array_equal(edge1.end1, edge2.end1) or np.array_equal(edge1.end1, edge2.end2):
             norm = get_united_normal_vector(edge1.end2, edge2.end1, edge2.end2)
-            if np.dot(edge1.end1 - edge1.end2, norm) != 0:  # 不共面
-                return False
         else:
             norm = get_united_normal_vector(edge1.end1, edge2.end1, edge2.end2)
-            if np.dot(edge1.end1 - edge1.end2, norm) != 0:  # 不共面
+            if np.linalg.norm(np.dot(edge1.end1 - edge1.end2, norm)) > 0.00001:  # 不共面
                 return False
 
         check_list = []
@@ -75,7 +73,8 @@ class WCS:
             vec = edge2.end1 - vertex
             check_list.append(np.dot(vec, norm))
 
-        if (np.array(check_list) >= 0).all() or (np.array(check_list) <= 0).all():  # 若所有顶点都在该面的一侧，则该面在多面体外
+        # 若所有顶点都在该面的一侧，则该面在多面体外
+        if (np.array(check_list) >= -0.00001).all() or (np.array(check_list) <= 0.00001).all():  # 由于位置测量误差，阈值不设为0
             return True
         else:
             return False
@@ -129,15 +128,15 @@ class WCS:
                             print("leave edge({}) from end".format(index + 1))
                     # 确定新碰撞的棱
                     new_nodes = check_new_collision(whole_waypoint[index], whole_waypoint[index + 2 + double_leave],
-                                                    vertex, possible_nodes, np.array([0, 0, -10000]))
+                                                    vertex, possible_nodes, np.array([0, 0, 0.1]))
                     # 将新节点接入序列中
                     if new_nodes:
-                        for i, nodes in enumerate(new_nodes):
+                        for i, node in enumerate(new_nodes):
                             if i == 0:
-                                self._add_node(nodes, self.tree[index])
+                                self._add_node(node, self.tree[index])
                             else:
-                                self._add_node(nodes, new_nodes[i - 1])
-                        print("add new nodes")
+                                self._add_node(node, new_nodes[i - 1])
+                        print("move onto new edges")
 
                     is_diff = True
                     break
@@ -151,7 +150,7 @@ class WCS:
                     if 0 < t1 < 1 and 0 < t2 < 1:  # 两线段投影是否相交
                         if dist <= 0.005:  # 距离阈值，距离小于该阈值认为可能将发生碰撞
                             # 检测碰撞
-                            if check_collision_infinite(whole_waypoint[-2], whole_waypoint[-1], edge):
+                            if check_collision_infinite(whole_waypoint[-2], whole_waypoint[-1], edge, np.array([0, 0, 0])):
                                 _, ratio = calculate_separation_1(whole_waypoint[-2], whole_waypoint[-1], edge)
                                 if 0 < ratio[0] < 1:
                                     self._add_node(edge, self.tree[-1])
@@ -194,7 +193,7 @@ class WCS:
             # 3.检测最末两段是否离开最后一个棱
             if not is_diff and is_first:
                 if separations:
-                    if not check_collision_infinite(whole_waypoint[-3], whole_waypoint[-1], self.tree[-1]):
+                    if not check_collision_infinite(whole_waypoint[-3], whole_waypoint[-1], self.tree[-1], np.array([0, 0, 0])):
                         self._remove_node(self.tree[-1])
                         is_diff = True
                         print("leave an edge")

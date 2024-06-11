@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     cdpr = CDPR()
 
-    T = 0.005     # control period
+    T = 0.02     # control period
     
     x_r_list, y_r_list, z_r_list = [], [], []
     x_list, y_list, z_list = [], [], []
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     target1 = np.array([0.180, 0.140, 0.100]) + cdpr.pos_off
     safe_point1 = np.array([0.200, 0.150, 0.250]) + cdpr.pos_off  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250]) + cdpr.pos_off  # 安全位置2
-    traject_height = -0.055 + 0.172    # 轨迹高度（相对于中棱面）
+    traject_height = -0.060 + 0.172    # 轨迹高度（相对于中棱面）
 
     c1_show = True
     c2_show = True
@@ -188,6 +188,7 @@ if __name__ == "__main__":
             ax.set_zlim(0, 0.6)
             plt.gca().set_box_aspect((1, 1, 0.6/0.8))
             plt.pause(T)
+
 
     plt.ioff()  # 关闭交互模式
     plt.show()
