@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     cdpr = CDPR()
 
-    T = 0.1     # control period
+    T = 0.2     # control period
     rate = rospy.Rate(1/T)
     
     x_r_list, y_r_list, z_r_list = [], [], []
@@ -40,6 +40,11 @@ if __name__ == "__main__":
     velocity_controller_joint_list = np.empty((0, 4))
     motor_velo_list = np.empty((0, 4))
 
+    # 改改改改改改
+    # target1 = np.array([0.651, 0.617, -0.718])  # （测量位置）
+    # safe_point1 = np.array([0.643, 0.536, -0.501])  # 安全位置1
+    # safe_point2 = np.array([0.204, 0.288, -0.545])  # 安全位置2
+    # traject_height = cdpr.middle_level - 0.075  # 轨迹高度（相对于中棱面）
     target1 = np.array([0.180, 0.140, 0.100]) + cdpr.pos_off
     safe_point1 = np.array([0.200, 0.150, 0.250]) + cdpr.pos_off  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250]) + cdpr.pos_off  # 安全位置2
@@ -49,7 +54,7 @@ if __name__ == "__main__":
 
     # ---------------------- main loop ----------------------
 
-    time.sleep(2)
+    time.sleep(1)
     # cdpr.pretighten(True, True, True, True)
     cdpr.init_cable_length(True, True, True, True)
 
@@ -105,7 +110,7 @@ if __name__ == "__main__":
         print('pos_ref: {}'.format(pos_ref))
         print('cable_length_ref: {}'.format(cable_length_ref))
 
-        cnt += 0.5
+        cnt += 1
         cdpr.update_cable_state(pos_ref)
 
         if cnt < 30:  # 从初始位置到达安全位置1
@@ -164,8 +169,8 @@ if __name__ == "__main__":
         print('cable length err: {}'.format(cable_length_err))
 
         # kinematics
-        eps = 0.0005     # 抖振
-        k = 2
+        eps = 0.002
+        k = 2.5
         velo_tag1 = ((cable_length_ref_next - cable_length_ref) / T + eps * np.sign(cable_length_err) +
                      k * cable_length_err)           # control law
         print('velo_tag1: {}'.format(velo_tag1))
@@ -247,15 +252,6 @@ if __name__ == "__main__":
         rate.sleep()
 
     cdpr.set_motor_velo(0, 0, 0, 0)
-
-    # calculate error
-    x_e = np.array(x_r_list) - np.array(x_list)
-    y_e = np.array(y_r_list) - np.array(y_list)
-    z_e = np.array(z_r_list) - np.array(z_list)
-    err_arr = np.sqrt(x_e ** 2 + y_e ** 2 + z_e ** 2)
-    print("\n\n-----------------------------")
-    print("mean tracking error: {}".format(np.mean(err_arr)))
-    print("max tracking error: {}".format(np.max(err_arr)))
     
     # plot
     fig = plt.figure(1)
@@ -266,6 +262,7 @@ if __name__ == "__main__":
     c2_plot = fig.add_subplot(4, 2, 4)
     c3_plot = fig.add_subplot(4, 2, 6)
     c4_plot = fig.add_subplot(4, 2, 8)
+
 
     x_plot.plot(x_r_list)
     x_plot.plot(x_list)
