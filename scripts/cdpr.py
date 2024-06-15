@@ -39,7 +39,7 @@ class CDPR:
         Ob4 = np.array([0.362, 0.039, 0.000])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
-        Ot = np.array([0.245, 0.152, 0.336])
+        Ot = np.array([0.247, 0.159, 0.331])
 
         # origin point offset (coordinates in world frame)
         self.xOff = center_x
@@ -162,8 +162,15 @@ class CDPR:
             [self._moving_platform_pose.pose.orientation.x, self._moving_platform_pose.pose.orientation.y, self._moving_platform_pose.pose.orientation.z, self._moving_platform_pose.pose.orientation.w]
 
     def get_cable_length(self):
-        r = 0.0327 * np.pi / 10000 / 10
-        cable_length = (self._motor_pos - self._ori_motor_pos) * r + self._ori_cable_lengths
+        r1 = 0.0325 * np.pi / 10000 / 10
+        r2 = 0.0328 * np.pi / 10000 / 10
+        r3 = 0.0325 * np.pi / 10000 / 10
+        r4 = 0.0327 * np.pi / 10000 / 10
+        cable_length = np.array([0.0, 0.0, 0.0, 0.0])
+        cable_length[0] = (self._motor_pos[0] - self._ori_motor_pos[0]) * r1 + self._ori_cable_lengths[0]
+        cable_length[1] = (self._motor_pos[1] - self._ori_motor_pos[1]) * r2 + self._ori_cable_lengths[1]
+        cable_length[2] = (self._motor_pos[2] - self._ori_motor_pos[2]) * r3 + self._ori_cable_lengths[2]
+        cable_length[3] = (self._motor_pos[3] - self._ori_motor_pos[3]) * r4 + self._ori_cable_lengths[3]
         return cable_length
     
     def pretighten(self, cable1_flag, cable2_flag, cable3_flag, cable4_flag):
