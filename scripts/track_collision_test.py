@@ -18,10 +18,7 @@ if __name__ == "__main__":
     cl1_r_list, cl2_r_list, cl3_r_list, cl4_r_list = [], [], [], []
     cl1_list, cl2_list, cl3_list, cl4_list = [], [], [], []
 
-    target1 = np.array([0.180, 0.140, 0.100]) + cdpr.pos_off
-    safe_point1 = np.array([0.200, 0.150, 0.250]) + cdpr.pos_off  # 安全位置1
-    safe_point2 = np.array([-0.200, -0.150, 0.250]) + cdpr.pos_off  # 安全位置2
-    traject_height = -0.060 + 0.172    # 轨迹高度（相对于中棱面）
+    traject = np.loadtxt("trajectory.txt")
 
     c1_show = True
     c2_show = True
@@ -53,7 +50,7 @@ if __name__ == "__main__":
 
     # ---------------------- main loop ----------------------
 
-    while cnt < 390:
+    while cnt < len(traject):
 
         print('-----------------------------------------------')
         print('                   run: {}'.format(cnt))
@@ -61,40 +58,7 @@ if __name__ == "__main__":
         start_time = time.time()
 
         # reference pose and cable length of moment k
-
-        if cnt < 30:        # 从初始位置到达安全位置1
-            start = np.array([cdpr.xOff, cdpr.yOff, 0.430])
-            end = safe_point1
-            pos_ref = (end - start) / 30 * cnt + start
-        elif cnt < 60:      # 安全位置到达目标位置1上方
-            start = safe_point1
-            pos_ref = (target1 - start + np.array([0, 0, 0.050])) / 30 * (cnt - 30) + start
-        elif cnt < 90:      # 在目标位置1上方下降
-            z = 0.050 - 0.050 / 30 * (cnt - 60)
-            pos_ref = target1 + np.array([0, 0, z])
-        elif cnt < 120:     # 在目标位置1定位
-            pos_ref = target1
-        elif cnt < 150:     # 从目标位置1到达轨迹初始位置
-            start = np.array([0.150 + cdpr.xOff, 0.150 + cdpr.yOff, traject_height])
-            pos_ref = (start - target1) / 30 * (cnt - 120) + target1
-        elif cnt < 210:     # 轨迹第一段
-            y = 0.150 - 0.005 * (cnt - 150)
-            pos_ref = np.array([0.150 + cdpr.xOff, y + cdpr.yOff, traject_height])
-        elif cnt < 270:     # 轨迹第二段
-            x = 0.150 - 0.005 * (cnt - 210)
-            pos_ref = np.array([x + cdpr.xOff, -0.150 + cdpr.yOff, traject_height])
-        elif cnt < 330:     # 在目标点2上方定位
-            pos_ref = np.array([-0.150 + cdpr.xOff, -0.150 + cdpr.yOff, traject_height])
-        elif cnt < 360:     # 从目标位置2到达安全位置2
-            start = np.array([-0.150 + cdpr.xOff, -0.150 + cdpr.yOff, traject_height])
-            end = safe_point2
-            pos_ref = (end - start) / 30 * (cnt - 330) + start
-        else:               # 从安全位置2到达初始位置
-            start = safe_point2
-            end = np.array([cdpr.xOff, cdpr.yOff, 0.430])
-            pos_ref = (end - start) / 30 * (cnt - 360) + start
-
-        pos_ref = pos_ref - cdpr.pos_off
+        pos_ref = traject[cnt]
         [seps1, seps2, seps3, seps4], cable_length_ref = cdpr.update_cable_state(pos_ref)
         cable_length_ref = np.array(cable_length_ref)
         print('pos_ref: {}'.format(pos_ref))

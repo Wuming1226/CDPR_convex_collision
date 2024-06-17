@@ -28,17 +28,17 @@ def smooth_p2p(way_points_list, travel_time_list, velo_limit, time_step):
 if __name__ == '__main__':
 
     zero_pos = np.array([0, 0, 0.430])
-    target1 = np.array([0.180, 0.140, 0.100])
+    target1 = np.array([0.186, 0.164, 0.080])
     safe_point1 = np.array([0.200, 0.150, 0.250])  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250])  # 安全位置2
-    traject_height = -0.060 + 0.172  # 轨迹高度（实测）
+    traject_height = -0.055 + 0.172  # 轨迹高度（实测）
     traject_start = np.array([0.150, 0.150, traject_height])
     traject_half = np.array([0.150, -0.150, traject_height])
     traject_end = np.array([-0.150, -0.150, traject_height])
 
     waypoints = [zero_pos, safe_point1, target1 + np.array([0, 0, 0.050]), target1, target1, traject_start,
                  traject_half, traject_end, traject_end, safe_point2, zero_pos]
-    travel_time = [8, 8, 6, 6, 8, 12, 12, 6, 8, 8]
+    travel_time = [10, 8, 6, 6, 8, 15, 15, 6, 8, 10]
     velo_limit = 0.100
     time_step = 0.1
 
