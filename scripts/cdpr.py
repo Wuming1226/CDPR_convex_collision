@@ -33,13 +33,13 @@ class CDPR:
         Om2 = np.array([0.137, 0.264, self.middle_level])
         Om3 = np.array([0.136, 0.039, self.middle_level])
         Om4 = np.array([0.362, 0.039, self.middle_level])
-        Ob1 = np.array([0.363, 0.264, 0.000])
-        Ob2 = np.array([0.137, 0.264, 0.000])
+        Ob1 = np.array([0.362, 0.264, 0.000])
+        Ob2 = np.array([0.136, 0.264, 0.000])
         Ob3 = np.array([0.136, 0.039, 0.000])
         Ob4 = np.array([0.362, 0.039, 0.000])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
-        Ot = np.array([0.247, 0.159, 0.331])
+        Ot = np.array([0.254, 0.157, 0.337])
 
         # origin point offset (coordinates in world frame)
         self.xOff = center_x
@@ -101,7 +101,8 @@ class CDPR:
 
     def _pose_callback(self, data):
         # if motion data is lost(999999), do not update
-        if np.abs(data.pose.position.x) > 2000 or np.abs(data.pose.position.y) > 2000 or np.abs(data.pose.position.z) > 2000:
+        if (np.abs(data.pose.position.x) > 2000 or np.abs(data.pose.position.y) > 2000
+                or np.abs(data.pose.position.z) > 2000):
             pass
         else:
             # pose
@@ -116,8 +117,10 @@ class CDPR:
 
     def _motor_pos_callback(self, data):
         diff = np.array(data.data) - self._motor_pos
-        if (np.abs(diff[0]) > 100000 or np.abs(diff[1]) > 1000000 or np.abs(diff[2]) > 1000000 or np.abs(diff[3]) > 1000000) \
-            and (self._motor_pos[0] != 0 and self._motor_pos[1] != 0 and self._motor_pos[2] != 0 and self._motor_pos[3] != 0):
+        if (np.abs(diff[0]) > 100000 or np.abs(diff[1]) > 1000000 or np.abs(diff[2]) > 1000000
+            or np.abs(diff[3]) > 1000000) \
+            and (self._motor_pos[0] != 0 and self._motor_pos[1] != 0 and self._motor_pos[2] != 0
+                 and self._motor_pos[3] != 0):
             pass
         else:
             self._motor_pos = np.array(data.data)
@@ -152,20 +155,21 @@ class CDPR:
                 calculate_cable_length(self._anchorA3, waypoints3, new_leaf),
                 calculate_cable_length(self._anchorA4, waypoints4, new_leaf)]
 
-
-    def set_motor_velo(self, motor1Velo, motor2Velo, motor3Velo, motor4Velo):
-        motor_velo = Int16MultiArray(data=np.array([motor1Velo, motor2Velo, motor3Velo, motor4Velo]))
+    def set_motor_velo(self, motor1_velo, motor2_velo, motor3_velo, motor4_velo):
+        motor_velo = Int16MultiArray(data=np.array([motor1_velo, motor2_velo, motor3_velo, motor4_velo]))
         self._veloPub.publish(motor_velo)
 
     def get_moving_platform_pose(self):
-        return self._moving_platform_pose.pose.position.x, self._moving_platform_pose.pose.position.y, self._moving_platform_pose.pose.position.z,\
-            [self._moving_platform_pose.pose.orientation.x, self._moving_platform_pose.pose.orientation.y, self._moving_platform_pose.pose.orientation.z, self._moving_platform_pose.pose.orientation.w]
+        return (self._moving_platform_pose.pose.position.x, self._moving_platform_pose.pose.position.y,
+                self._moving_platform_pose.pose.position.z,
+                [self._moving_platform_pose.pose.orientation.x, self._moving_platform_pose.pose.orientation.y,
+                 self._moving_platform_pose.pose.orientation.z, self._moving_platform_pose.pose.orientation.w])
 
     def get_cable_length(self):
-        r1 = 0.0325 * np.pi / 10000 / 10
-        r2 = 0.0328 * np.pi / 10000 / 10
-        r3 = 0.0325 * np.pi / 10000 / 10
-        r4 = 0.0327 * np.pi / 10000 / 10
+        r1 = 0.03268 * np.pi / 10000 / 10
+        r2 = 0.03283 * np.pi / 10000 / 10
+        r3 = 0.03245 * np.pi / 10000 / 10
+        r4 = 0.03267 * np.pi / 10000 / 10
         cable_length = np.array([0.0, 0.0, 0.0, 0.0])
         cable_length[0] = (self._motor_pos[0] - self._ori_motor_pos[0]) * r1 + self._ori_cable_lengths[0]
         cable_length[1] = (self._motor_pos[1] - self._ori_motor_pos[1]) * r2 + self._ori_cable_lengths[1]

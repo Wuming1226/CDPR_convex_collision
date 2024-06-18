@@ -40,7 +40,7 @@ if __name__ == "__main__":
     velocity_controller_joint_list = np.empty((0, 4))
     motor_velo_list = np.empty((0, 4))
 
-    traject = np.loadtxt("trajectory.txt")
+    traject = np.loadtxt("trajectory+.txt")
 
     tighten_flag = True
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
         # kinematics
         eps = 0.0005     # 抖振
-        k = 1.2
+        k = 1.0
         velo_tag1 = ((cable_length_ref_next - cable_length_ref) / T + eps * np.sign(cable_length_err) +
                      k * cable_length_err)           # control law
         print('velo_tag1: {}'.format(velo_tag1))

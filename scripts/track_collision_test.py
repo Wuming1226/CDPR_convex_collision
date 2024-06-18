@@ -11,14 +11,14 @@ if __name__ == "__main__":
 
     cdpr = CDPR()
 
-    T = 0.02     # control period
+    T = 0.005     # control period
     
     x_r_list, y_r_list, z_r_list = [], [], []
     x_list, y_list, z_list = [], [], []
     cl1_r_list, cl2_r_list, cl3_r_list, cl4_r_list = [], [], [], []
     cl1_list, cl2_list, cl3_list, cl4_list = [], [], [], []
 
-    traject = np.loadtxt("trajectory.txt")
+    traject = np.loadtxt("trajectory+.txt")
 
     c1_show = True
     c2_show = True
@@ -34,13 +34,13 @@ if __name__ == "__main__":
     A2 = np.array([-0.342, 0.342, 0.732])
     A3 = np.array([-0.342, -0.342, 0.732])
     A4 = np.array([0.342, -0.342, 0.735])
-    Ot = np.array([0.245, 0.152, 0.336]) - cdpr.pos_off
-    Om1 = np.array([0.363, 0.264, 0.172]) - cdpr.pos_off
-    Om2 = np.array([0.137, 0.264, 0.172]) - cdpr.pos_off
+    Ot = np.array([0.254, 0.157, 0.337]) - cdpr.pos_off
+    Om1 = np.array([0.362, 0.264, 0.172]) - cdpr.pos_off
+    Om2 = np.array([0.136, 0.264, 0.172]) - cdpr.pos_off
     Om3 = np.array([0.136, 0.039, 0.172]) - cdpr.pos_off
     Om4 = np.array([0.362, 0.039, 0.172]) - cdpr.pos_off
-    Ob1 = np.array([0.363, 0.264, 0.0]) - cdpr.pos_off
-    Ob2 = np.array([0.137, 0.264, 0.0]) - cdpr.pos_off
+    Ob1 = np.array([0.362, 0.264, 0.0]) - cdpr.pos_off
+    Ob2 = np.array([0.136, 0.264, 0.0]) - cdpr.pos_off
     Ob3 = np.array([0.136, 0.039, 0.0]) - cdpr.pos_off
     Ob4 = np.array([0.362, 0.039, 0.0]) - cdpr.pos_off
 

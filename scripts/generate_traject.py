@@ -28,24 +28,26 @@ def smooth_p2p(way_points_list, travel_time_list, velo_limit, time_step):
 if __name__ == '__main__':
 
     zero_pos = np.array([0, 0, 0.430])
-    target1 = np.array([0.186, 0.164, 0.080])
+    target1 = np.array([0.186, 0.164, 0.082])
     safe_point1 = np.array([0.200, 0.150, 0.250])  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250])  # 安全位置2
-    traject_height = -0.055 + 0.172  # 轨迹高度（实测）
-    traject_start = np.array([0.150, 0.150, traject_height])
-    traject_half = np.array([0.150, -0.150, traject_height])
-    traject_end = np.array([-0.150, -0.150, traject_height])
+    safe_point3 = np.array([-0.200, 0.150, 0.250])
+    traject_height = -0.052 + 0.172  # 轨迹高度（实测）
+    traject_1 = np.array([0.150, 0.150, traject_height])
+    traject_2 = np.array([0.150, -0.150, traject_height])
+    traject_3 = np.array([-0.150, -0.150, traject_height])
+    traject_4 = np.array([-0.150, 0.150, traject_height])
 
-    waypoints = [zero_pos, safe_point1, target1 + np.array([0, 0, 0.050]), target1, target1, traject_start,
-                 traject_half, traject_end, traject_end, safe_point2, zero_pos]
-    travel_time = [10, 8, 6, 6, 8, 15, 15, 6, 8, 10]
+    waypoints = [zero_pos, safe_point1, target1 + np.array([0, 0, 0.050]), target1, target1, traject_1,
+                 traject_2, traject_3, traject_4, traject_4, safe_point3, zero_pos]
+    travel_time = [10, 8, 6, 6, 8, 15, 15, 15, 6, 8, 10]
     velo_limit = 0.100
     time_step = 0.1
 
     traject = smooth_p2p(waypoints, travel_time, velo_limit, time_step)
     traject = np.array(traject)
 
-    np.savetxt("trajectory.txt", traject)
+    np.savetxt("trajectory+.txt", traject)
 
     # plot
     fig = plt.figure(1)
