@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 folder = '../data/beta/'
+# folder = '../data/0625_0072/'
 file_order = ''
 pos_ref_save_path = folder + 'pos_ref' + file_order + '.txt'
 pos_save_path = folder + 'pos' + file_order + '.txt'
@@ -54,6 +55,7 @@ if __name__ == "__main__":
 
         # plot
         fig = plt.figure(1)
+        plt.clf()
         x_plot = fig.add_subplot(4, 2, 1)
         y_plot = fig.add_subplot(4, 2, 3)
         z_plot = fig.add_subplot(4, 2, 5)
@@ -82,6 +84,12 @@ if __name__ == "__main__":
         y_plot.set_ylabel('y')
         z_plot.set_ylabel('z')
 
-        plt.pause(0.5)
+        plt.figure(2)
         plt.clf()
+        ax = plt.axes(projection='3d')
+        ax.plot(x_r_list, y_r_list, z_r_list)
+        ax.plot(x_list, y_list, z_list)
+
+        plt.pause(0.5)
+
 

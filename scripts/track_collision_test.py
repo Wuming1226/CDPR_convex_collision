@@ -34,7 +34,7 @@ if __name__ == "__main__":
     A2 = np.array([-0.342, 0.342, 0.732])
     A3 = np.array([-0.342, -0.342, 0.732])
     A4 = np.array([0.342, -0.342, 0.735])
-    Ot = np.array([0.254, 0.157, 0.337]) - cdpr.pos_off
+    Ot = np.array([0.247, 0.157, 0.337]) - cdpr.pos_off
     Om1 = np.array([0.362, 0.264, 0.172]) - cdpr.pos_off
     Om2 = np.array([0.136, 0.264, 0.172]) - cdpr.pos_off
     Om3 = np.array([0.136, 0.039, 0.172]) - cdpr.pos_off

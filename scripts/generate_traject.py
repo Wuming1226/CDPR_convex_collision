@@ -28,7 +28,7 @@ def smooth_p2p(way_points_list, travel_time_list, velo_limit, time_step):
 if __name__ == '__main__':
 
     zero_pos = np.array([0, 0, 0.430])
-    target1 = np.array([0.186, 0.164, 0.082])
+    target1 = np.array([0.450, 0.305, 0.080]) - np.array([0.249, 0.1515, 0])
     safe_point1 = np.array([0.200, 0.150, 0.250])  # 安全位置1
     safe_point2 = np.array([-0.200, -0.150, 0.250])  # 安全位置2
     safe_point3 = np.array([-0.200, 0.150, 0.250])

@@ -23,17 +23,17 @@ class CDPR:
         # self._veloPub = rospy.Publisher('motor_velo', Int16MultiArray, queue_size=10)
 
         # 测量数据
-        Om1 = np.array([0.363, 0.264, 0.172])
-        Om2 = np.array([0.137, 0.264, 0.172])
+        Om1 = np.array([0.362, 0.264, 0.172])
+        Om2 = np.array([0.136, 0.264, 0.172])
         Om3 = np.array([0.136, 0.039, 0.172])
         Om4 = np.array([0.362, 0.039, 0.172])
-        Ob1 = np.array([0.363, 0.264, 0.000])
-        Ob2 = np.array([0.137, 0.264, 0.000])
+        Ob1 = np.array([0.362, 0.264, 0.000])
+        Ob2 = np.array([0.136, 0.264, 0.000])
         Ob3 = np.array([0.136, 0.039, 0.000])
         Ob4 = np.array([0.362, 0.039, 0.000])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
-        Ot = np.array([0.254, 0.157, 0.337])
+        Ot = np.array([0.247, 0.157, 0.337])
 
         # origin point offset (coordinates in world frame)
         self.xOff = center_x

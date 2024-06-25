@@ -29,8 +29,8 @@ class CDPR:
 
         # 测量数据
         self.middle_level = 0.172
-        Om1 = np.array([0.363, 0.264, self.middle_level])
-        Om2 = np.array([0.137, 0.264, self.middle_level])
+        Om1 = np.array([0.362, 0.264, self.middle_level])
+        Om2 = np.array([0.136, 0.264, self.middle_level])
         Om3 = np.array([0.136, 0.039, self.middle_level])
         Om4 = np.array([0.362, 0.039, self.middle_level])
         Ob1 = np.array([0.362, 0.264, 0.000])
@@ -39,7 +39,7 @@ class CDPR:
         Ob4 = np.array([0.362, 0.039, 0.000])
         center_x = (Ob1[0] + Ob2[0] + Ob3[0] + Ob4[0]) / 4
         center_y = (Ob1[1] + Ob2[1] + Ob3[1] + Ob4[1]) / 4
-        Ot = np.array([0.254, 0.157, 0.337])
+        Ot = np.array([0.247, 0.157, 0.337])
 
         # origin point offset (coordinates in world frame)
         self.xOff = center_x
@@ -86,18 +86,25 @@ class CDPR:
         x0, y0, z0, _ = self.get_moving_platform_pose()
         pos0 = np.array([x0, y0, z0])
 
-        if cable1_flag:
-            self._ori_cable_lengths[0] = np.linalg.norm(pos0 - self._anchorA1)
-            self._ori_motor_pos[0] = self._motor_pos[0]
-        if cable2_flag:
-            self._ori_cable_lengths[1] = np.linalg.norm(pos0 - self._anchorA2)
-            self._ori_motor_pos[1] = self._motor_pos[1]
-        if cable3_flag:
-            self._ori_cable_lengths[2] = np.linalg.norm(pos0 - self._anchorA3)
-            self._ori_motor_pos[2] = self._motor_pos[2]
-        if cable4_flag:
-            self._ori_cable_lengths[3] = np.linalg.norm(pos0 - self._anchorA4)
-            self._ori_motor_pos[3] = self._motor_pos[3]
+        while True:
+            if cable1_flag:
+                self._ori_cable_lengths[0] = np.linalg.norm(pos0 - self._anchorA1)
+                self._ori_motor_pos[0] = self._motor_pos[0]
+            if cable2_flag:
+                self._ori_cable_lengths[1] = np.linalg.norm(pos0 - self._anchorA2)
+                self._ori_motor_pos[1] = self._motor_pos[1]
+            if cable3_flag:
+                self._ori_cable_lengths[2] = np.linalg.norm(pos0 - self._anchorA3)
+                self._ori_motor_pos[2] = self._motor_pos[2]
+            if cable4_flag:
+                self._ori_cable_lengths[3] = np.linalg.norm(pos0 - self._anchorA4)
+                self._ori_motor_pos[3] = self._motor_pos[3]
+
+            if (self._ori_cable_lengths < 1).all():
+                break
+            else:
+                time.sleep(0.5)
+
 
     def _pose_callback(self, data):
         # if motion data is lost(999999), do not update
@@ -166,10 +173,10 @@ class CDPR:
                  self._moving_platform_pose.pose.orientation.z, self._moving_platform_pose.pose.orientation.w])
 
     def get_cable_length(self):
-        r1 = 0.03268 * np.pi / 10000 / 10
-        r2 = 0.03283 * np.pi / 10000 / 10
-        r3 = 0.03245 * np.pi / 10000 / 10
-        r4 = 0.03267 * np.pi / 10000 / 10
+        r1 = 0.0325 * np.pi / 10000 / 10
+        r2 = 0.0324 * np.pi / 10000 / 10
+        r3 = 0.0327 * np.pi / 10000 / 10
+        r4 = 0.0327 * np.pi / 10000 / 10
         cable_length = np.array([0.0, 0.0, 0.0, 0.0])
         cable_length[0] = (self._motor_pos[0] - self._ori_motor_pos[0]) * r1 + self._ori_cable_lengths[0]
         cable_length[1] = (self._motor_pos[1] - self._ori_motor_pos[1]) * r2 + self._ori_cable_lengths[1]
