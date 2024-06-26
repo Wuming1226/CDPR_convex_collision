@@ -150,7 +150,11 @@ class WCS:
                     if 0 < t1 < 1 and 0 < t2 < 1:  # 两线段投影是否相交
                         if dist <= 0.005:  # 距离阈值，距离小于该阈值认为可能将发生碰撞
                             # 检测碰撞
-                            if check_collision_infinite(whole_waypoint[-2], whole_waypoint[-1], edge, np.array([0, 0, 0])):
+                            if check_collision_infinite(whole_waypoint[-2], whole_waypoint[-1], edge,
+                                                        np.array([0, 0, 0])) \
+                                    and self.check_coplanar_and_outside(edge,
+                                                                        Edge(whole_waypoint[-1],
+                                                                             whole_waypoint[-1])):  # 确保最末端没有进入多面体内
                                 _, ratio = calculate_separation_1(whole_waypoint[-2], whole_waypoint[-1], edge)
                                 if 0 < ratio[0] < 1:
                                     self._add_node(edge, self.tree[-1])
@@ -193,7 +197,8 @@ class WCS:
             # 3.检测最末两段是否离开最后一个棱
             if not is_diff and is_first:
                 if separations:
-                    if not check_collision_infinite(whole_waypoint[-3], whole_waypoint[-1], self.tree[-1], np.array([0, 0, 0])):
+                    if not check_collision_infinite(whole_waypoint[-3], whole_waypoint[-1], self.tree[-1],
+                                                    np.array([0, 0, 0])):
                         self._remove_node(self.tree[-1])
                         is_diff = True
                         print("leave an edge")
