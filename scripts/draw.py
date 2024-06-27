@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 folder = '../data/beta/'
-# folder = '../data/0625_0072/'
+# folder = '../data/0627_0060/'
 file_order = ''
 pos_ref_save_path = folder + 'pos_ref' + file_order + '.txt'
 pos_save_path = folder + 'pos' + file_order + '.txt'

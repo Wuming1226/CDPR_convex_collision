@@ -42,10 +42,10 @@ class CDPR:
         self.pos_off = np.array([self.xOff, self.yOff, self.zOff])
 
         # anchor positions in the world frame
-        self._anchorA1 = np.array([0.342, 0.342, 0.732])
-        self._anchorA2 = np.array([-0.342, 0.342, 0.732])
-        self._anchorA3 = np.array([-0.342, -0.342, 0.732])
-        self._anchorA4 = np.array([0.342, -0.342, 0.735])
+        self._anchorA1 = np.array([0.342, 0.342, 0.727])
+        self._anchorA2 = np.array([-0.342, 0.342, 0.727])
+        self._anchorA3 = np.array([-0.342, -0.342, 0.727])
+        self._anchorA4 = np.array([0.342, -0.342, 0.727])
 
         anchor1 = Edge(self._anchorA1, self._anchorA1)
         anchor2 = Edge(self._anchorA2, self._anchorA2)
